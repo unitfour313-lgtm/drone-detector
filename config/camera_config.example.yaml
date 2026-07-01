@@ -1,0 +1,103 @@
+# Uniview Camera Configuration
+
+camera:
+  # Camera IP address
+  ip: "192.168.1.100"
+  
+  # RTSP port (typically 554)
+  port: 554
+  
+  # Camera credentials
+  username: "admin"
+  password: "password"
+  
+  # RTSP path (depends on camera model)
+  rtsp_path: "/stream"
+  
+  # Connection timeout in seconds
+  timeout: 10
+
+# Detection settings
+detection:
+  # YOLO model size: nano, small, medium, large, xlarge
+  model: "yolov8m"
+  
+  # Confidence threshold (0-1)
+  confidence_threshold: 0.5
+  
+  # Target object classes
+  target_classes:
+    - "aircraft"
+    - "drone"
+  
+  # Preprocessing
+  preprocessing:
+    # Apply histogram equalization
+    histogram_equalization: true
+    # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    clahe: true
+    # Apply bilateral filtering
+    bilateral_filter: true
+
+# Tracking settings
+tracking:
+  # Maximum age for a track (frames without detection)
+  max_age: 30
+  
+  # Maximum distance for associating detections to tracks
+  max_distance: 50.0
+
+# Database settings
+database:
+  # PostgreSQL host
+  host: "postgres"
+  
+  # PostgreSQL port
+  port: 5432
+  
+  # Database name
+  name: "drone_detection"
+  
+  # Database user
+  user: "detector"
+  
+  # Database password
+  password: "secure_password"
+
+# Alert settings
+alerts:
+  enabled: true
+  
+  # Confidence threshold for alerts
+  confidence_threshold: 0.7
+  
+  # Alert methods
+  methods:
+    # Email alerts
+    email:
+      enabled: false
+      recipients:
+        - "admin@example.com"
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      sender_email: "alerts@example.com"
+      sender_password: "email_password"
+    
+    # Webhook alerts
+    webhook:
+      enabled: false
+      url: "https://your-webhook-url.com/alert"
+    
+    # Syslog alerts
+    syslog:
+      enabled: false
+      host: "localhost"
+      port: 514
+
+# Logging settings
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/drone_detector.log"
+  max_size_mb: 100
+  backup_count: 10

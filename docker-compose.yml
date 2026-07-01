@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: drone-detector-db
+    environment:
+      POSTGRES_USER: detector
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_DB: drone_detection
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U detector"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - drone-detector-net
+
+  # Python Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: drone-detector-api
+    environment:
+      DATABASE_URL: "postgresql://detector:secure_password@postgres:5432/drone_detection"
+      LOG_LEVEL: "INFO"
+      CAMERA_IP: "${CAMERA_IP:-192.168.1.100}"
+      CAMERA_PORT: "${CAMERA_PORT:-554}"
+      CAMERA_USERNAME: "${CAMERA_USERNAME:-admin}"
+      CAMERA_PASSWORD: "${CAMERA_PASSWORD:-password}"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    networks:
+      - drone-detector-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  drone-detector-net:
+    driver: bridge
